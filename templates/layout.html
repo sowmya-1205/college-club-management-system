@@ -13,8 +13,11 @@
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <!-- FIX: Changed from 'home' to 'clubs1:home' -->
-            <a class="navbar-brand" href="{% url 'clubs1:home' %}">ClubHub</a>
+            <!-- College logo and brand -->
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'clubs1:home' %}">
+                <img src="{% static 'pics/nitlogo.png' %}" alt="NIT Andhra Pradesh" width="36" height="36" class="me-2 rounded-circle">
+                <span>ClubHub</span>
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -74,5 +77,10 @@
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Placeholder note for media replacement -->
+    <script>
+      // Media placeholders: replace files in static/pics/ as needed.
+    </script>
 </body>
 </html>

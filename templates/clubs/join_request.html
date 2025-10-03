@@ -10,8 +10,8 @@
     </div>
 
     <div class="text-center mt-4">
-        <a href="{% url 'club_members' club.id %}" class="btn btn-primary">Back to Club Members</a>
-        <a href="{% url 'home' %}" class="btn btn-secondary">Go to Home</a>
+        <a href="{% url 'clubs1:club_detail' club.id %}" class="btn btn-primary">Back to Club</a>
+        <a href="{% url 'clubs1:home' %}" class="btn btn-secondary">Go to Home</a>
     </div>
 </div>
 {% endblock %}

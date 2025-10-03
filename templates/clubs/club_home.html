@@ -1,8 +1,10 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class=home redirect>
-    <a href="{% url 'home' %}" class="btn btn-primary">Back to Home</a>
+<div class="mb-3">
+    <a href="{% url 'clubs1:home' %}" class="btn btn-primary">Back to Home</a>
+    <a href="{% url 'clubs1:club_detail' club.id %}" class="btn btn-outline-secondary">View Club Page</a>
+    <img src="{% static 'pics/nitgate.png' %}" alt="Placeholder" class="img-fluid mt-2" style="max-width: 200px;"/>
 </div>
 <div class="container mt-4">
     <h1 class="text-center">{{ club.name }}</h1>
@@ -17,13 +19,13 @@
     <!-- Navigation Links -->
     <ul class="nav nav-tabs mt-4">
         <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.url_name == 'club_home' %}active{% endif %}" href="{% url 'club_home' club.id %}">Home</a>
+            <a class="nav-link active" href="{% url 'clubs1:club_detail' club.id %}">Home</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.url_name == 'club_announcements' %}active{% endif %}" href="{% url 'club_announcements' club.id %}">Announcements</a>
+            <a class="nav-link" href="{% url 'clubs1:club_detail' club.id %}#announcements">Announcements</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.url_name == 'club_members' %}active{% endif %}" href="{% url 'club_members' club.id %}">Members ({{ club.members.count }})</a>
+            <a class="nav-link" href="{% url 'clubs1:manage_club_members' club.id %}">Members</a>
         </li>
     </ul>
 

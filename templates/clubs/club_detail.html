@@ -11,7 +11,7 @@
             {% if club.image %}
                 <img src="{{ club.image.url }}" class="img-fluid rounded" alt="{{ club.name }} logo">
             {% else %}
-                <img src="https://via.placeholder.com/400x300.png?text=No+Image" class="img-fluid rounded" alt="Default club image">
+                <img src="{% static 'pics/nitgate.png' %}" class="img-fluid rounded" alt="Default club image">
             {% endif %}
         </div>
         <div class="col-md-8">
@@ -22,7 +22,7 @@
             <div class="mt-3">
                 {% if user.is_authenticated %}
                     {% if is_club_admin %}
-                        <a href="{% url 'clubs1:manage_club_requests' club.id %}" class="btn btn-success">Manage Requests</a>
+                        <a href="{% url 'clubs1:manage_club_members' club.id %}" class="btn btn-success">Manage Members & Requests</a>
                         <a href="{% url 'clubs1:create_announcement' club.id %}" class="btn btn-info">Create Announcement</a>
                     {% elif is_member %}
                         <button class="btn btn-secondary disabled">You are a member</button>

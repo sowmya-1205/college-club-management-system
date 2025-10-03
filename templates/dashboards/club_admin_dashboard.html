@@ -17,13 +17,13 @@
         </div>
         <div class="card-body">
             {% if pending_join_requests %}
-                <p>You have {{ pending_join_requests.count }} new request(s) to join your club(s).</p>
+                <p>You have {{ pending_join_requests|length }} new request(s) to join your club(s).</p>
                 <ul class="list-group">
                     {% for request in pending_join_requests %}
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <span><strong>{{ request.user.username }}</strong> wants to join <strong>{{ request.club.name }}</strong>.</span>
                             <!-- Link to the page where admins can process this request -->
-                            <a href="{% url 'clubs1:manage_club_requests' request.club.id %}" class="btn btn-sm btn-primary">Review Requests</a>
+                            <a href="{% url 'clubs1:manage_club_members' request.club.id %}" class="btn btn-sm btn-primary">Review Requests</a>
                         </li>
                     {% endfor %}
                 </ul>

@@ -1,4 +1,16 @@
-"""Legacy views; active implementation is in clubs1/views.py"""
+# clubs1/views.py
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+from django.contrib import messages
+from django.db import IntegrityError, transaction
+from django.utils import timezone
+
+from .decorators import user_is_club_admin
+from .models import CustomUser, UserProfile, Club, ClubMembership, JoinRequest, ClubHeadRequest, Announcement, Event
+from .forms import CustomUserCreationForm, UserProfileForm, AnnouncementForm, EventForm
 
 # --- AUTHENTICATION VIEWS (No Changes) ---
 def signup_view(request):
@@ -14,6 +26,7 @@ def signup_view(request):
     else:
         form = CustomUserCreationForm()
     return render(request, 'auth/signup.html', {'form': form})
+
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -32,11 +45,13 @@ def login_view(request):
             messages.error(request, 'Invalid username or password.')
     return render(request, 'auth/login.html')
 
+
 @login_required
 def logout_view(request):
     logout(request)
     messages.info(request, 'You have been logged out.')
     return redirect('clubs1:home')
+
 
 # --- DASHBOARD & PROFILE VIEWS (No Changes) ---
 @login_required
@@ -67,6 +82,7 @@ def dashboard_view(request):
     }
     return render(request, 'dashboards/student_dashboard.html', context)
 
+
 @login_required
 def faculty_admin_dashboard_view(request):
     coordinated_clubs = request.user.coordinated_clubs.all()
@@ -78,6 +94,23 @@ def faculty_admin_dashboard_view(request):
     }
     return render(request, 'dashboards/faculty_admin_dashboard.html', context)
 
+
+@login_required
+def request_club_head_view(request):
+    if request.method == 'POST':
+        club_name = request.POST.get('club_name')
+        club_description = request.POST.get('club_description') or ''
+        message = request.POST.get('message') or ''
+        # Prevent duplicates
+        exists = ClubHeadRequest.objects.filter(user=request.user, club_name__iexact=club_name, status='pending').exists()
+        if exists:
+            messages.info(request, 'You have already submitted a request for this club. Please wait for approval.')
+            return render(request, 'clubs/request_exists.html', { 'club': {'name': club_name} })
+        ClubHeadRequest.objects.create(user=request.user, club_name=club_name, club_description=club_description, message=message)
+        return render(request, 'clubs/request_success.html', { 'club': {'name': club_name} })
+    return render(request, 'clubs/request_club_head.html')
+
+
 @login_required
 def faculty_club_detail_view(request, club_id):
     club = get_object_or_404(Club, pk=club_id, faculty_coordinator=request.user)
@@ -88,6 +121,7 @@ def faculty_club_detail_view(request, club_id):
         'events': club.events.order_by('-date')[:5],
     }
     return render(request, 'dashboards/faculty_club_detail.html', context)
+
 
 @login_required
 def profile_view(request):
@@ -109,9 +143,11 @@ def home_view(request):
     events = Event.objects.filter(date__gte=timezone.now().date()).order_by('date')[:5]
     return render(request, 'home.html', {'announcements': announcements, 'events': events})
 
+
 def club_list_view(request):
     clubs = Club.objects.all()
     return render(request, 'clubs/club_list.html', {'clubs': clubs})
+
 
 def club_detail_view(request, club_id):
     club = get_object_or_404(Club, pk=club_id)
@@ -149,7 +185,6 @@ def submit_join_request(request, club_id):
     return redirect('clubs1:club_detail', club_id=club.id)
 
 
-# --- REPLACED: This is the new comprehensive member management view ---
 @login_required
 @user_is_club_admin
 def manage_club_members_view(request, club_id):
@@ -161,7 +196,6 @@ def manage_club_members_view(request, club_id):
         'requests': pending_requests,
         'members': current_members,
     }
-    # This now points to a new, more detailed template
     return render(request, 'clubs/manage_members.html', context)
 
 
@@ -173,9 +207,9 @@ def process_join_request(request, request_id, action):
         raise PermissionDenied
 
     if action == 'approve':
-        with transaction.atomic(): # Ensures both actions succeed or neither do
+        with transaction.atomic():
             join_request.status = 'approved'
-            ClubMembership.objects.create(user=join_request.user, club=club, role='member')
+            ClubMembership.objects.get_or_create(user=join_request.user, club=club, defaults={'role': 'member'})
             join_request.save()
         messages.success(request, f"{join_request.user.username}'s request has been approved.")
     elif action == 'reject':
@@ -186,12 +220,11 @@ def process_join_request(request, request_id, action):
     return redirect('clubs1:manage_club_members', club_id=club.id)
 
 
-# --- NEW: View to promote a member to Club Admin ---
 @login_required
 def promote_member_view(request, membership_id):
     membership = get_object_or_404(ClubMembership, pk=membership_id)
     club = membership.club
-    if not ClubMembership.objects.filter(user=request.user, club=club, role='admin').exists():
+    if not (ClubMembership.objects.filter(user=request.user, club=club, role='admin').exists() or request.user.is_superuser or request.user == club.faculty_coordinator):
         raise PermissionDenied("You do not have permission to perform this action.")
 
     membership.role = 'admin'
@@ -200,18 +233,15 @@ def promote_member_view(request, membership_id):
     return redirect('clubs1:manage_club_members', club_id=club.id)
 
 
-# --- NEW: View to remove a member from a club ---
 @login_required
 def remove_member_view(request, membership_id):
     membership = get_object_or_404(ClubMembership, pk=membership_id)
     club = membership.club
     user_to_remove = membership.user
 
-    # Security Check: Logged-in user must be an admin of this club
-    if not ClubMembership.objects.filter(user=request.user, club=club, role='admin').exists():
+    if not (ClubMembership.objects.filter(user=request.user, club=club, role='admin').exists() or request.user.is_superuser):
         raise PermissionDenied("You do not have permission to perform this action.")
     
-    # Business Logic: Prevent an admin from removing themselves if they are the last admin
     if membership.role == 'admin' and club.get_club_admins().count() == 1:
         messages.error(request, f"You cannot remove {user_to_remove.username} as they are the last admin. Promote another member first.")
         return redirect('clubs1:manage_club_members', club_id=club.id)
@@ -221,7 +251,6 @@ def remove_member_view(request, membership_id):
     return redirect('clubs1:manage_club_members', club_id=club.id)
 
 
-# --- Content Creation Views (No Changes) ---
 @login_required
 @user_is_club_admin
 def create_club_announcement(request, club_id):
@@ -238,6 +267,7 @@ def create_club_announcement(request, club_id):
     else:
         form = AnnouncementForm()
     return render(request, 'clubs/create_announcement.html', {'form': form, 'club': club})
+
 
 @login_required
 @user_is_club_admin
