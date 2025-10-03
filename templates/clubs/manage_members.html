@@ -1,0 +1,86 @@
+{% extends 'layout.html' %}
+{% block title %}Manage Members for {{ club.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <a href="{% url 'clubs1:dashboard' %}" class="btn btn-outline-secondary btn-sm mb-3">← Back to Dashboard</a>
+    <h2>Manage Members & Requests for <span class="text-primary">{{ club.name }}</span></h2>
+    <hr>
+
+    <!-- Section for Pending Join Requests -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4><i class="fas fa-user-clock"></i> Pending Join Requests ({{ requests.count }})</h4>
+        </div>
+        <div class="card-body">
+            {% if requests %}
+                <ul class="list-group">
+                    {% for req in requests %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <strong>{{ req.user.username }}</strong>
+                                <small class="text-muted"> - Requested {{ req.requested_at|timesince }} ago</small>
+                            </span>
+                            <div>
+                                <a href="{% url 'clubs1:process_join_request' req.id 'approve' %}" class="btn btn-success btn-sm">Approve</a>
+                                <a href="{% url 'clubs1:process_join_request' req.id 'reject' %}" class="btn btn-danger btn-sm">Reject</a>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted">No pending join requests.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Section for Current Members -->
+    <div class="card">
+        <div class="card-header">
+            <h4><i class="fas fa-users"></i> Current Members ({{ members.count }})</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Joined On</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in members %}
+                        <tr>
+                            <td>{{ member.user.username }}</td>
+                            <td>
+                                {% if member.role == 'admin' %}
+                                    <span class="badge bg-success">Club Admin</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Member</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ member.join_date|date:"M d, Y" }}</td>
+                            <td class="text-end">
+                                <!-- An admin cannot remove or promote themselves -->
+                                {% if member.user != request.user %}
+                                    {% if member.role == 'member' %}
+                                        <!-- Promote Button -->
+                                        <a href="{% url 'clubs1:promote_member' member.id %}" class="btn btn-primary btn-sm">Promote to Admin</a>
+                                    {% endif %}
+                                    <!-- Remove Button (Check if they are not the last admin) -->
+                                    <a href="{% url 'clubs1:remove_member' member.id %}" class="btn btn-danger btn-sm">Remove</a>
+                                {% else %}
+                                    <span class="text-muted fst-italic">This is you</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

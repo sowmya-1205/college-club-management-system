@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+
+{% block title %}Clubs - College Club Management{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Explore Clubs</h2>
+    <div class="row mt-4">
+        {% for club in clubs %}
+        <div class="col-md-4">
+            <div class="card mb-3">
+                {% if club.logo %}
+                <img src="{{ club.logo.url }}" class="card-img-top" alt="{{ club.name }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ club.name }}</h5>
+                    <p class="card-text">{{ club.description }}</p>
+                    <a href="#" class="btn btn-primary">Join Club</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-center">No clubs available yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

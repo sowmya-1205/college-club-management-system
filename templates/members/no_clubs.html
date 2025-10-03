@@ -1,0 +1,9 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="container">
+        <h1>You are not a member of any club.</h1>
+        <p>Please join a club to access its features.</p>
+        <a href="{% url 'clubs_list' %}" class="btn btn-primary">Browse Clubs</a> <!-- Link to browse clubs or join a club -->
+    </div>
+{% endblock %}

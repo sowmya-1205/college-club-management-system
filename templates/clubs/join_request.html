@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">{{ club.name }} - Join Request</h1>
+
+    <div class="alert alert-success mt-4">
+        <p>Your request to join the club has been successfully sent.</p>
+        <p>You will be notified once your request is approved.</p>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="{% url 'club_members' club.id %}" class="btn btn-primary">Back to Club Members</a>
+        <a href="{% url 'home' %}" class="btn btn-secondary">Go to Home</a>
+    </div>
+</div>
+{% endblock %}

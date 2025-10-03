@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block title %}Browse Clubs{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="p-4 p-md-5 mb-4 rounded text-body-emphasis bg-body-secondary">
+        <div class="col-lg-8 px-0">
+            <h1 class="display-4 fst-italic">Explore Our Vibrant Clubs</h1>
+            <p class="lead my-3">Find a community that shares your passion. Browse the list below and find where you belong.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for club in clubs %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                {% if club.image %}
+                    <img src="{{ club.image.url }}" class="card-img-top" alt="{{ club.name }} image" style="height: 200px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ club.name }}</h5>
+                    <p class="card-text">{{ club.description|truncatewords:25 }}</p>
+                    <a href="{% url 'clubs1:club_detail' club.id %}" class="btn btn-primary mt-auto">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col">
+            <p>No clubs have been created yet. Check back soon!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

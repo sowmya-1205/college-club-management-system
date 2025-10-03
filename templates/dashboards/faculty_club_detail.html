@@ -1,0 +1,68 @@
+{% extends 'layout.html' %} {# Or your base template #}
+
+{% block title %}{{ club.name }} - Faculty View{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <a href="{% url 'clubs1:faculty_admin_dashboard' %}" class="btn btn-outline-secondary btn-sm mb-3">← Back to Dashboard</a>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>{{ club.name }}</h1>
+        <span class="badge bg-info text-dark">Faculty Oversight</span>
+    </div>
+
+    <div class="row">
+        <!-- Members List -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5>Club Members ({{ members.count }})</h5>
+                </div>
+                <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                    <ul class="list-group list-group-flush">
+                        {% for membership in members %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ membership.user.username }}
+                                {% if membership.role == 'admin' %}
+                                    <span class="badge bg-success">Club Admin</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Member</span>
+                                {% endif %}
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item">This club has no members yet.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5>Recent Activity</h5>
+                </div>
+                <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                    <h6>Latest Announcements</h6>
+                    <ul class="list-group list-group-flush mb-3">
+                        {% for ann in announcements %}
+                            <li class="list-group-item">{{ ann.title }} - <small class="text-muted">{{ ann.created_at|date:"M d, Y" }}</small></li>
+                        {% empty %}
+                            <li class="list-group-item">No recent announcements.</li>
+                        {% endfor %}
+                    </ul>
+
+                    <h6>Recent Events</h6>
+                    <ul class="list-group list-group-flush">
+                        {% for event in events %}
+                             <li class="list-group-item">{{ event.title }} - <small class="text-muted">{{ event.date|date:"M d, Y" }}</small></li>
+                        {% empty %}
+                            <li class="list-group-item">No recent events.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

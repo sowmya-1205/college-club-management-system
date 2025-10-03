@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class=home redirect>
+    <a href="{% url 'home' %}" class="btn btn-primary">Back to Home</a>
+</div>
+<div class="container mt-4">
+    <h1 class="text-center">{{ club.name }}</h1>
+
+    <!-- Display Club Image -->
+    {% if club.image %}
+        <div class="text-center">
+            <img src="{{ club.image.url }}" alt="{{ club.name }}" class="img-fluid rounded" style="max-width: 300px; height: auto;">
+        </div>
+    {% endif %}
+
+    <!-- Navigation Links -->
+    <ul class="nav nav-tabs mt-4">
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'club_home' %}active{% endif %}" href="{% url 'club_home' club.id %}">Home</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'club_announcements' %}active{% endif %}" href="{% url 'club_announcements' club.id %}">Announcements</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'club_members' %}active{% endif %}" href="{% url 'club_members' club.id %}">Members ({{ club.members.count }})</a>
+        </li>
+    </ul>
+
+    <!-- Home Section -->
+    <div class="mt-3">
+        <h3>About {{ club.name }}</h3>
+        <p>{{ club.description }}</p>
+    </div>
+</div>
+{% endblock %}

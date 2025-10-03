@@ -1,0 +1,13 @@
+{% if joined_clubs %}
+    <div class="list-group">
+        {% for club in joined_clubs %}
+            <a href="{% url 'clubs1:club_detail' club.id %}" class="list-group-item list-group-item-action">
+                {{ club.name }}
+            </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        You haven't joined any clubs yet. Why not <a href="{% url 'clubs1:club_list' %}" class="alert-link">browse the clubs</a> and find one that interests you?
+    </div>
+{% endif %}

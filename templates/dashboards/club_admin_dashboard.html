@@ -1,0 +1,68 @@
+{% extends 'layout.html' %} {# Or your base template like 'base.html' #}
+
+{% block title %}Club Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Club Admin Dashboard</h1>
+        <span class="badge bg-success">Admin View</span>
+    </div>
+    <p class="lead">Welcome, {{ user.get_full_name|default:user.username }}. You can manage your clubs and review requests here.</p>
+
+    <!-- Section for Pending Join Requests -->
+    <div class="card border-warning mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h4><i class="fas fa-user-plus"></i> Pending Join Requests</h4>
+        </div>
+        <div class="card-body">
+            {% if pending_join_requests %}
+                <p>You have {{ pending_join_requests.count }} new request(s) to join your club(s).</p>
+                <ul class="list-group">
+                    {% for request in pending_join_requests %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><strong>{{ request.user.username }}</strong> wants to join <strong>{{ request.club.name }}</strong>.</span>
+                            <!-- Link to the page where admins can process this request -->
+                            <a href="{% url 'clubs1:manage_club_requests' request.club.id %}" class="btn btn-sm btn-primary">Review Requests</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted">There are no pending join requests for your clubs at the moment.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Section for Managing Administered Clubs -->
+    <div class="card">
+        <div class="card-header">
+            <h4><i class="fas fa-cogs"></i> Your Administered Clubs</h4>
+        </div>
+        <div class="card-body">
+            <p>Select a club to manage its content, events, and members.</p>
+            {% if administered_clubs %}
+                <div class="list-group">
+                    {% for club in administered_clubs %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ club.name }}</h5>
+                                <small>{{ club.members.count }} member(s)</small>
+                            </div>
+                            <p class="mb-2">Click an action below to manage this club.</p>
+                            <div>
+                                <a href="{% url 'clubs1:club_detail' club.id %}" class="btn btn-sm btn-outline-secondary">View Public Page</a>
+                                <a href="{% url 'clubs1:create_announcement' club.id %}" class="btn btn-sm btn-primary">Create Announcement</a>
+                                <a href="{% url 'clubs1:create_club_event' club.id %}" class="btn btn-sm btn-success">Create Event</a>
+                                <a href="{% url 'clubs1:manage_club_members' club.id %}" class="btn btn-sm btn-info">Manage Members & Requests</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                 <p class="text-muted">You are not an admin of any clubs.</p>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'layout.html' %}
+{% block title %}Create Event{% endblock %}
+
+{% block content %}
+<style>
+    .create-event-container {
+        max-width: 500px;
+        margin: 30px auto;
+        padding: 25px;
+        border: 1px solid #ccc;
+        border-radius: 12px;
+        background-color: #f9f9f9;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .create-event-container h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .create-event-container label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+
+    .create-event-container input[type="text"],
+    .create-event-container input[type="date"],
+    .create-event-container textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
+
+    .create-event-container textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .create-event-container button {
+        width: 100%;
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        font-size: 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .create-event-container button:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+<div class="create-event-container">
+    <h2>Create an Event</h2>
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div>
+            <label for="event_name">Event Name:</label>
+            <input type="text" id="event_name" name="event_name" placeholder="Enter event name" required>
+        </div>
+        
+        <div>
+            <label for="event_date">Event Date:</label>
+            <input type="date" id="event_date" name="event_date" required>
+        </div>
+        
+        <div>
+            <label for="event_description">Event Description:</label>
+            <textarea id="event_description" name="event_description" placeholder="Enter event description" required></textarea>
+        </div>
+        
+        <button type="submit">Create Event</button>
+    </form>
+</div>
+{% endblock %}

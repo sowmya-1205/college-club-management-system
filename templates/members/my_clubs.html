@@ -1,0 +1,24 @@
+{% extends 'layout.html' %}
+
+{% block title %}My Clubs{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h2>My Clubs</h2>
+
+        {% if clubs %}
+            <div class="list-group mt-3">
+                {% for club in clubs %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <h5>{{ club.name }}</h5>
+                        <p>{{ club.description }}</p>
+                        <a href="{% url 'club_announcements' club.id %}" class="btn btn-info btn-sm">View Announcements</a>
+                        <a href="{% url 'club_events' club.id %}" class="btn btn-primary btn-sm">Upcoming Events</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>You are not a member of any clubs yet. Consider joining one!</p>
+        {% endif %}
+    </div>
+{% endblock %}

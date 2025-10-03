@@ -1,0 +1,156 @@
+# models.py
+from django.db import models
+from django.contrib.auth.models import User
+
+class Club(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    members = models.ManyToManyField(User, through='ClubMember')
+
+    def __str__(self):
+        return self.name
+
+class ClubMember(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    club = models.ForeignKey(Club, on_delete=models.CASCADE)
+    role = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.club.name} ({self.role})"
+
+class RoleRequest(models.Model):
+    ROLE_CHOICES = [
+        ('Club Admin', 'Club Admin'),
+        ('Faculty Coordinator', 'Faculty Coordinator'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    club = models.ForeignKey(Club, on_delete=models.CASCADE)
+    role_requested = models.CharField(max_length=30, choices=ROLE_CHOICES)
+    is_approved = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} requests {self.role_requested} for {self.club.name}"
+
+
+# views.py
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Group
+from .models import Club, ClubMember, RoleRequest
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
+@login_required
+def club_members(request, club_id):
+    club = get_object_or_404(Club, id=club_id)
+    members = club.clubmember_set.all()
+    user_groups = request.user.groups.values_list('name', flat=True)
+    
+    can_add_members = 'Club Admin' in user_groups or 'Faculty Coordinator' in user_groups
+
+    role_requests = RoleRequest.objects.filter(club=club, is_approved=False)
+    if 'Admin' in user_groups:
+        visible_requests = role_requests
+    elif 'Faculty Coordinator' in user_groups:
+        visible_requests = role_requests.filter(role_requested='Club Admin')
+    else:
+        visible_requests = None
+
+    return render(request, 'clubs/club_members.html', {
+        'club': club,
+        'members': members,
+        'can_add_members': can_add_members,
+        'visible_requests': visible_requests,
+    })
+
+@login_required
+def approve_role_request(request, request_id):
+    req = get_object_or_404(RoleRequest, id=request_id)
+    if request.method == "POST":
+        group = Group.objects.get(name=req.role_requested)
+        req.user.groups.add(group)
+        req.is_approved = True
+        req.save()
+    return HttpResponseRedirect(reverse('club_members', args=[req.club.id]))
+
+@login_required
+def request_role(request, club_id):
+    club = get_object_or_404(Club, id=club_id)
+    if request.method == "POST":
+        role = request.POST.get('role')
+        existing = RoleRequest.objects.filter(user=request.user, club=club, role_requested=role, is_approved=False)
+        if not existing.exists():
+            RoleRequest.objects.create(user=request.user, club=club, role_requested=role)
+    return redirect('club_members', club_id=club.id)
+
+
+# urls.py
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('club/<int:club_id>/members/', views.club_members, name='club_members'),
+    path('approve-request/<int:request_id>/', views.approve_role_request, name='approve_role_request'),
+    path('club/<int:club_id>/request-role/', views.request_role, name='request_role'),
+]
+
+
+<!-- club_members.html -->
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">{{ club.name }} - Members</h1>
+    <ul class="nav nav-tabs mt-4">
+        <li class="nav-item"><a class="nav-link" href="{% url 'club_home' club.id %}">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'club_announcements' club.id %}">Announcements</a></li>
+        <li class="nav-item"><a class="nav-link active" href="{% url 'club_members' club.id %}">Members ({{ members.count }})</a></li>
+    </ul>
+
+    {% if user.is_authenticated %}
+        {% if can_add_members %}
+            <div class="text-end mt-3">
+                <a href="{% url 'add_club_member' club.id %}" class="btn btn-success">+ Add Member</a>
+            </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'request_role' club.id %}" class="mt-4">
+            {% csrf_token %}
+            <label for="role">Request Role:</label>
+            <select name="role" class="form-select">
+                <option value="Club Admin">Club Admin</option>
+                <option value="Faculty Coordinator">Faculty Coordinator</option>
+            </select>
+            <button type="submit" class="btn btn-warning mt-2">Submit Request</button>
+        </form>
+    {% endif %}
+
+    {% if visible_requests %}
+        <h4 class="mt-4">Pending Role Requests</h4>
+        <ul class="list-group">
+            {% for req in visible_requests %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ req.user.get_full_name|default:req.user.username }} requested <strong>{{ req.role_requested }}</strong>
+                    <form method="post" action="{% url 'approve_role_request' req.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-primary">Approve</button>
+                    </form>
+                </li>
+            {% empty %}
+                <li class="list-group-item text-muted">No pending requests.</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <ul class="list-group mt-4">
+        {% for member in members %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ member.user.get_full_name|default:member.user.username }}
+                <span class="badge bg-secondary">{{ member.role }}</span>
+            </li>
+        {% empty %}
+            <li class="list-group-item text-muted">No members yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Welcome, {{ user.first_name|default:user.username }}!</h1>
+    <p>This is your personal dashboard. Here you can see the clubs you've joined and other relevant information.</p>
+    <hr>
+    <div class="row">
+        <div class="col-md-8">
+            <h3>My Clubs</h3>
+            {% include "dashboards/student_dashboard_partial.html" %}
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Actions</h5>
+                    <a href="{% url 'clubs1:profile' %}" class="btn btn-primary w-100 mb-2">Edit My Profile</a>
+                    <a href="{% url 'clubs1:club_list' %}" class="btn btn-secondary w-100">Explore More Clubs</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

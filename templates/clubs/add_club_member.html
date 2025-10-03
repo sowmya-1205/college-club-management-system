@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">Add Member to {{ club.name }}</h1>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs mt-4">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'club_home' club.id %}">Home</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'club_announcements' club.id %}">Announcements</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" href="{% url 'club_members' club.id %}">Members</a>
+        </li>
+    </ul>
+
+    <div class="mt-4">
+        <h3>Select a User to Add as Member</h3>
+
+        <!-- Form to Add Member -->
+        <form method="POST" action="{% url 'add_club_member' club.id %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="user" class="form-label">User</label>
+                <select class="form-select" id="user" name="user" required>
+                    <option value="" disabled selected>Select a user</option>
+                    {% for user in available_users %}
+                        <option value="{{ user.id }}">{{ user.get_full_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="role" class="form-label">Role</label>
+                <select class="form-select" id="role" name="role" required>
+                    <option value="member">Member</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add Member</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

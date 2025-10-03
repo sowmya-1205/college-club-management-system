@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block title %}Site Administration{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Site Admin Dashboard</h1>
+    <p>You have full oversight of the platform.</p>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <p class="card-text fs-2">{{ user_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Total Clubs</h5>
+                    <p class="card-text fs-2">{{ club_count }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <h3>System Actions</h3>
+    <a href="/admin/" class="btn btn-danger">Go to Main Admin Panel</a>
+</div>
+{% endblock %}
