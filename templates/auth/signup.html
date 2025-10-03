@@ -27,11 +27,7 @@
                     <label for="{{ field.id_for_label }}" style="display: block; font-size: 16px; font-weight: 500; margin-bottom: 8px; color: #333;">
                         {{ field.label }}
                     </label>
-                    <!-- Django renders the correct input field here -->
-                    <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" placeholder="Enter your {{ field.label|lower }}" required 
-                           style="width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
-                    
-                    <!-- This will show any validation errors for a specific field -->
+                    {{ field }}
                     {% for error in field.errors %}
                         <div style="color: red; font-size: 14px; margin-top: 5px;">{{ error }}</div>
                     {% endfor %}

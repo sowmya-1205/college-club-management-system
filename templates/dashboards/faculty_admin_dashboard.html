@@ -29,6 +29,7 @@
                 </div>
             {% else %}
                 <p>You are not currently assigned as a faculty coordinator for any clubs.</p>
+                <a href="{% url 'clubs1:request_club_head' %}" class="btn btn-outline-primary">Request Club Head for a New Club</a>
             {% endif %}
         </div>
     </div>

@@ -15,25 +15,21 @@
             {% endfor %}
         {% endif %}
 
-        <!-- CORRECTION: Added the action attribute to point to the correct URL -->
+        <!-- Login form -->
         <form method="POST" action="{% url 'clubs1:login' %}">
             {% csrf_token %}
             
-            <div style="margin-bottom: 20px;">
-                <label for="username" style="display: block; font-size: 16px; font-weight: 500; margin-bottom: 8px; color: #333;">🆔 Username</label>
-                <input type="text" id="username" name="username" placeholder="Enter your username" required 
-                       style="width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username" required>
             </div>
 
-            <div style="margin-bottom: 20px;">
-                <label for="password" style="display: block; font-size: 16px; font-weight: 500; margin-bottom: 8px; color: #333;">🔒 Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter your password" required 
-                       style="width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
             </div>
 
-            <button type="submit" style="width: 100%; padding: 12px; background-color: #0066cc; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; transition: background-color 0.3s ease;">
-                Login
-            </button>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
         </form>
 
         <!-- CORRECTION: Added a link to the signup page -->

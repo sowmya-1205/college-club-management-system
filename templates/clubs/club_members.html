@@ -4,25 +4,23 @@
 <div class="container mt-4">
     <h1 class="text-center">{{ club.name }} - Members</h1>
 
-    <!-- Navigation Tabs -->
+    <!-- Navigation Tabs (updated to working routes) -->
     <ul class="nav nav-tabs mt-4">
         <li class="nav-item">
-            <a class="nav-link" href="{% url 'club_home' club.id %}">Home</a>
+            <a class="nav-link" href="{% url 'clubs1:club_detail' club.id %}">Home</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="{% url 'club_announcements' club.id %}">Announcements</a>
+            <a class="nav-link" href="{% url 'clubs1:club_detail' club.id %}#announcements">Announcements</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link active" href="{% url 'club_members' club.id %}">Members ({{ club.members.all|length }})</a>
+            <a class="nav-link active" href="#">Members ({{ club.members.all|length }})</a>
         </li>
     </ul>
 
     <!-- Add Member Button -->
-    {% if can_add_members %}
-        <div class="text-end mt-3">
-            <a href="{% url 'add_club_member' club.id %}" class="btn btn-success">+ Add Member</a>
-        </div>
-    {% endif %}
+    <div class="text-end mt-3">
+        <a href="{% url 'clubs1:manage_club_members' club.id %}" class="btn btn-success">Manage Members</a>
+    </div>
 
     <!-- Members List -->
     <ul class="list-group mt-3">
@@ -40,10 +38,7 @@
 
     <!-- Join Request Button (Only for non-members) -->
     {% if user and user not in club.members.all %}
-        <form method="POST" action="{% url 'join_request' club.id %}" class="mt-3">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary">Request to Join</button>
-        </form>
+        <a href="{% url 'clubs1:submit_join_request' club.id %}" class="btn btn-primary mt-3">Request to Join</a>
     {% endif %}
 </div>
 {% endblock %}

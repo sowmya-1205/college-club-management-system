@@ -1,6 +1,4 @@
 from django.apps import AppConfig
 
 
-class ClubsConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'clubs1'
+"""Legacy app config. Active config is in clubs1/apps.py"""
